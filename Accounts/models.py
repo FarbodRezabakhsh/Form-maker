@@ -9,6 +9,7 @@ class User(AbstractBaseUser):
     full_name = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
+    last_login = models.DateTimeField(auto_now=True,null=True)
 
     USERNAME_FIELD = 'phone_number'
     REQUIRED_FIELDS = ['email','full_name']
