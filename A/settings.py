@@ -11,21 +11,30 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+from dotenv import load_dotenv
+import environ
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+# Load environment variables from .env file
 BASE_DIR = Path(__file__).resolve().parent.parent
+env = environ.Env()
+load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-z_98f5jyw--zp-6@bt0@nm&kd0ct@6!rxavhl&vu8-9-r%t55s'
+SECRET_KEY = env('SECRET_KEY', default=None)
+if not SECRET_KEY:
+    raise ValueError("The SECRET_KEY environment variable is not set!")
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool('DEBUG',default=False)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1']
 
 
 # Application definition
@@ -41,7 +50,7 @@ INSTALLED_APPS = [
     'Accounts.apps.AccountsConfig',
     'Feedbacks.apps.FeedbacksConfig',
     'Form.apps.FormConfig',
-    'rest_framework.authtoken'
+    'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [
@@ -78,13 +87,18 @@ WSGI_APPLICATION = 'A.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': env('DATABASE_ENGINE',default='django.db.backends.mysql'),
+        'NAME': env('DB_NAME'),
+        'USER': env('DB_USER'),
+        'PASSWORD': env('DB_PASSWORD'),
+        'HOST': env('DB_HOST',default='localhost'),  # Or the MySQL server IP
+        'PORT': env('DB_PORT', default='3306'),  # The default MySQL port
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators

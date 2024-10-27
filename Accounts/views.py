@@ -14,7 +14,6 @@ class UserListView(APIView):
         return Response(data=srz_data.data)
 
 
-
 class UserRegisterView(APIView):
     def post(self, request):
         srz_data = UserRegisterSerializer(data=request.data)
