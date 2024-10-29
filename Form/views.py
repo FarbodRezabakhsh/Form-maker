@@ -6,6 +6,9 @@ from .models import Form,Category,Process,Question
 from rest_framework import status
 from rest_framework import viewsets
 from django.shortcuts import get_object_or_404
+from rest_framework.permissions import IsAuthenticated
+from permissions import IsOwnerOrReadOnly
+from rest_framework.decorators import permission_classes
 
 # Create your views here.
 
@@ -17,6 +20,7 @@ class HomeView(APIView):
 
 
 class FormCreateView(APIView):
+    permission_classes = [IsAuthenticated]
     def post(self,request):
         srz_data = FormSerializer(data=request.data)
         if srz_data.is_valid():
@@ -26,8 +30,10 @@ class FormCreateView(APIView):
 
 
 class FormUpdateView(APIView):
+    permission_classes = [IsOwnerOrReadOnly]
     def put(self,request,pk):
         form = Form.objects.get(pk=pk)
+        self.check_object_permissions(request,form)
         srz_data = FormSerializer(instance=form,data=request.data,partial=True)
         if srz_data.is_valid():
             srz_data.save()
@@ -35,13 +41,16 @@ class FormUpdateView(APIView):
         return Response(data=srz_data.errors,status=status.HTTP_400_BAD_REQUEST)
 
 class FormDeleteView(APIView):
+    permission_classes = [IsAuthenticated,IsOwnerOrReadOnly]
     def delete(self,request,pk):
         form = Form.objects.get(pk=pk)
+        self.check_object_permissions(request,form)
         form.delete()
         return Response({'message':'Form deleted!'})
 
 class CategoryViewSet(viewsets.ViewSet):
     queryset = Category.objects.all()
+    permission_classes = [IsAuthenticated]
 
     def list(self,request):
         srz_data = CategorySerializer(instance=self.queryset,many=True)
@@ -59,16 +68,22 @@ class CategoryViewSet(viewsets.ViewSet):
         srz_data = CategorySerializer(instance=cat)
         return Response(data=srz_data.data)
 
+
     def partial_update(self,request,pk):
         cat = get_object_or_404(Category,pk=pk)
+        self.permission_classes = [IsOwnerOrReadOnly]
+        self.check_object_permissions(request,cat)
         srz_data = CategorySerializer(instance=cat,data=request.data,partial=True)
         if srz_data.is_valid():
             srz_data.save()
             return Response(data=srz_data.data,status=status.HTTP_200_OK)
         return Response(data=srz_data.errors,status=status.HTTP_400_BAD_REQUEST)
 
+
     def destroy(self,request,pk):
         cat = get_object_or_404(self.queryset,pk=pk)
+        self.permission_classes = [IsOwnerOrReadOnly]
+        self.check_object_permissions(request,cat)
         cat.delete()
         return Response({'message':'category deleted'})
 
@@ -93,15 +108,22 @@ class QuestionViewSet(viewsets.ViewSet):
         srz_data = self.serializer_class(instance=question)
         return Response(srz_data.data,status=status.HTTP_200_OK)
 
+
     def partial_update(self,request,pk):
         question = get_object_or_404(Question,pk=pk)
+        self.permission_classes = [IsOwnerOrReadOnly]
+        self.check_object_permissions(request,question)
         srz_data = self.serializer_class(instance=question,data=request.data,partial=True)
         if srz_data.is_valid():
             srz_data.save()
             return Response(srz_data.data,status=status.HTTP_200_OK)
         return Response(srz_data.errors,status=status.HTTP_400_BAD_REQUEST)
 
+
     def destroy(self,request,pk):
         question = get_object_or_404(Question,pk=pk)
+        self.permission_classes = [IsOwnerOrReadOnly]
+        self.check_object_permissions(request, question)
+        self.check_object_permissions(request,question)
         question.delete()
         return Response({'message':'question deleted'})
