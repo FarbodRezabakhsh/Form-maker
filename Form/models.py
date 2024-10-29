@@ -1,3 +1,4 @@
+
 from django.db import models
 from Accounts.models import User
 import Feedbacks
@@ -25,6 +26,7 @@ class Question(models.Model):
         ('rating', 'Rating'),
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE,related_name='users_question')
+    form = models.ForeignKey(Form, on_delete=models.CASCADE,related_name='questions')
     title = models.CharField(max_length=100)
     question_type = models.CharField(max_length=100,choices=choice_type)
     required = models.BooleanField(default=False)
