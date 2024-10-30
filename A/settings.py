@@ -50,7 +50,6 @@ INSTALLED_APPS = [
     'Accounts.apps.AccountsConfig',
     'Feedbacks.apps.FeedbacksConfig',
     'Form.apps.FormConfig',
-    'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [
@@ -145,7 +144,12 @@ AUTH_USER_MODEL = 'Accounts.User'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
-    ]
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+            'anon': '10/minute',
+            'user': '10/minute'
+    },
+
 }
 

@@ -9,10 +9,14 @@ from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from permissions import IsOwnerOrReadOnly
 from rest_framework.decorators import permission_classes
+from rest_framework.throttling import  UserRateThrottle,AnonRateThrottle
+from rest_framework.decorators import throttle_classes
 
 # Create your views here.
 
 class HomeView(APIView):
+    throttle_classes = [AnonRateThrottle]
+    permission_classes = [IsAuthenticated]
     def get(self,request):
         form = Form.objects.all()
         form_srz = FormSerializer(form,many=True)
@@ -52,6 +56,7 @@ class CategoryViewSet(viewsets.ViewSet):
     queryset = Category.objects.all()
     permission_classes = [IsAuthenticated]
 
+    @throttle_classes([AnonRateThrottle])
     def list(self,request):
         srz_data = CategorySerializer(instance=self.queryset,many=True)
         return Response(data=srz_data.data)
@@ -94,6 +99,7 @@ class QuestionViewSet(viewsets.ViewSet):
 
     def list(self,request):
         srz_data = self.serializer_class(instance=self.queryset, many=True)
+        self.throttle_classes = [AnonRateThrottle]
         return Response(srz_data.data,status=status.HTTP_200_OK)
 
     def create(self,request):
